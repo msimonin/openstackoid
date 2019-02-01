@@ -33,12 +33,23 @@ os_confs = [
 ]
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "bento/ubuntu-16.04"
+  # config.vm.box = "bento/ubuntu-16.04"
+  config.vm.box = "generic/ubuntu1604"
 
   # Configuration for VirtualBox
   config.vm.provider :virtualbox do |vb, override|
     vb.cpus = 6
     vb.memory = 6144
+    override.vm.synced_folder "./", "/vagrant",
+                              owner: "vagrant",
+                              group: "vagrant"
+  end
+
+  # Configuration for VirtualBox
+  config.vm.provider :libvirt do |lv, override|
+    lv.cpus = 6
+    lv.memory = 6144
+    lv.nested = true
     override.vm.synced_folder "./", "/vagrant",
                               owner: "vagrant",
                               group: "vagrant"

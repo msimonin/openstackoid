@@ -92,21 +92,28 @@
         SERVICE_PASSWORD=$ADMIN_PASSWORD
         LIBVIRT_TYPE=qemu
         HOST_IP={{ os_ip }}
-        SERVICE_HOST=10.0.2.15
+        # NOTE(msimonin) if we keep using haproxy, maybe we could
+        # use a second interface instead of the NAT one
+        # SERVICE_IP=10.0.2.15
+        SERVICE_HOST=$HOST_IP
 
         REGION_NAME={{ os_name }}
         KEYSTONE_REGION_NAME={{ os_name }}
+
+        LIBS_FROM_GIT=keystonemiddleware
 
         # LIBS_FROM_GIT=oslo.db
         # OSLODB_REPO=https://github.com/BeyondTheClouds/oslo.db
         # OSLODB_BRANCH=cockroachdb/pike
 
         # Note: Find services in $ENABLED_SERVICES
-        disable_service c-api
-        disable_service c-sch
-        disable_service c-vol
+        disable_service etcd3
         disable_service horizon
         disable_service tempest
+        disable_service cinder c-sch c-api c-vol
+        disable_service placement-api placement-client
+        disable_service q-svc q-dhcp q-meta q-agt q-l3
+        disable_service n-api n-cpu n-cond n-sch n-novnc n-cauth n-api-meta n-sproxy
 
         # enable_plugin rally https://github.com/openstack/rally master
 
@@ -122,6 +129,12 @@
         # at every request.
         [cache]
         enabled = False
+
+        [[post-config|$GLANCE_CONF]]
+        [DEFAULT]
+        debug=True
+        default_log_levels = keystonemiddleware=DEBUG, keystoneauth=WARN
+
     become: true
     become_user: stack
 
